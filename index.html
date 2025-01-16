@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome</title>
+    <script>
+        let countdown = 5; // Countdown timer starting from 5 seconds
+
+        // Function to update the countdown
+        function updateCountdown() {
+            const countdownElement = document.getElementById('countdown');
+            countdownElement.textContent = countdown; // Update the text content
+            countdown--;
+
+            if (countdown < 0) {
+                clearInterval(interval); // Stop the interval when countdown reaches 0
+                window.location.href = '/login'; // Redirect to login page
+            }
+        }
+
+        // Start the countdown and update every second
+        const interval = setInterval(updateCountdown, 1000);
+    </script>
+</head>
+<body>
+    <h1>Welcome to the Waste Management System</h1>
+    <p>You will be redirected to the login page in <span id="countdown">5</span> seconds.</p>
+    <p>If you are not redirected, <a href="/login">click here to login</a>.</p>
+</body>
+</html>

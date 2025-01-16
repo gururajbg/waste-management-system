@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .container {
+            width: 80%;
+            margin: auto;
+        }
+
+        .nav {
+            background-color: #333;
+            padding: 10px;
+        }
+
+        .nav a {
+            color: white;
+            padding: 14px 20px;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .nav a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+
+        .section {
+            margin: 20px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            display: none;
+        }
+
+        /* Initially hidden */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            border: 1px solid #ccc;
+            text-align: left;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>User Dashboard</h1>
+
+    <!-- Navigation Bar -->
+    <div class="nav">
+        <a href="#" onclick="toggleSection('registerComplaint')">Register Complaint</a>
+        <a href="#" onclick="toggleSection('trackWaste')">Track Waste Production</a>
+        <a href="#" onclick="toggleSection('manageCollection')">Manage Waste Collection</a>
+        <a href="#" onclick="toggleSection('profileManagement')">Profile Management</a>
+        <a href="/logout">Logout</a>
+    </div>
+
+    <div class="container">
+        <!-- Register Complaint Section -->
+        <div class="section" id="registerComplaint">
+            <h2>Register Complaint</h2>
+            <form id="complaintForm">
+                <label for="complaintMessage">Message:</label>
+                <textarea id="complaintMessage" name="complaintMessage" required></textarea>
+                <br>
+                <label for="complaintImage">Upload Image:</label>
+                <input type="file" id="complaintImage" name="complaintImage">
+                <br>
+                <button type="submit">Submit Complaint</button>
+            </form>
+            <div id="complaintResponse"></div>
+        </div>
+
+        <!-- Track Waste Production Section -->
+        <div class="section" id="trackWaste">
+            <h2>Track Waste Production</h2>
+            <p>Total Bio Waste: <span id="totalBioWaste">0</span> kg</p>
+            <p>Total Non-Bio Waste: <span id="totalNonBioWaste">0</span> kg</p>
+            <p>Total Waste Produced Today: <span id="totalWasteToday">0</span> kg</p>
+        </div>
+
+        <!-- Manage Waste Collection Section -->
+        <div class="section" id="manageCollection">
+            <h2>Manage Waste Collection</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Collection Date</th>
+                        <th>Collection Time</th>
+                        <th>Bio Weight (kg)</th>
+                        <th>Non-Bio Weight (kg)</th>
+                    </tr>
+                </thead>
+                <tbody id="wasteManagementBody">
+                    <!-- Waste management data will be populated here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Profile Management Section -->
+        <div class="section" id="profileManagement">
+            <h2>Profile Management</h2>
+            <form id="profileForm">
+                <label for="u_name">Name:</label>
+                <input type="text" id="u_name" name="u_name" required>
+                <br>
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+                <br>
+                <button type="submit">Update Profile</button>
+            </form>
+            <div id="profileResponse"></div>
+        </div>
+    </div>
+
+    <script>
+        // Function to toggle visibility of sections
+        function toggleSection(sectionId) {
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => {
+                if (section.id === sectionId) {
+                    section.style.display = section.style.display === 'none' ? 'block' : 'none';
+                } else {
+                    section.style.display = 'none'; // Hide other sections
+                }
+            });
+        }
+
+        // Fetch and populate waste production data
+        async function fetchWasteData() {
+            const response = await fetch('/api/user-waste-data'); // Adjust the endpoint as needed
+            const wasteData = await response.json();
+            document.getElementById('totalBioWaste').innerText = wasteData.bio_weight || 0;
+            document.getElementById('totalNonBioWaste').innerText = wasteData.non_bio_weight || 0;
+            document.getElementById('totalWasteToday').innerText = (wasteData.bio_weight + wasteData.non_bio_weight)|| 0;
+        }
+
+        // Fetch and populate waste management data
+        async function fetchWasteManagementData() {
+            const response = await fetch('/api/user-collection-data'); // Adjust the endpoint as needed
+            const wasteData = await response.json();
+            const wasteManagementBody = document.getElementById('wasteManagementBody');
+            wasteManagementBody.innerHTML = ''; // Clear previous data
+
+            wasteData.forEach(record => {
+                const row = `<tr>
+                    <td>${record.w_date}</td>
+                    <td>${record.bio_weight || 0}</td>
+                    <td>${record.non_bio_weight || 0}</td>
+                    <td>${record.total_waste_produced_per_day}</td>
+                </tr>`;
+                wasteManagementBody.innerHTML += row;
+            });
+        }
+
+        // Handle complaint submission
+        document.getElementById('complaintForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = {
+                message: formData.get('complaintMessage'),
+                image: formData.get('complaintImage') // Handle image upload appropriately
+            };
+
+            const response = await fetch('/api/register-complaint', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
+
+            const complaintResponse = document.getElementById('complaintResponse');
+            if (response.ok) {
+                complaintResponse.innerText = 'Complaint submitted successfully!';
+            } else {
+                complaintResponse.innerText = 'Failed to submit complaint. Please try again.';
+            }
+        };
+
+        // Handle profile update
+        document.getElementById('profileForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = {
+                u_name: formData.get('u_name'),
+                email: formData.get('email'),
+            };
+
+            const response = await fetch('/api/update-profile', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
+
+            const profileResponse = document.getElementById('profileResponse');
+            if (response.ok) {
+                profileResponse.innerText = 'Profile updated successfully!';
+            } else {
+                profileResponse.innerText = 'Failed to update profile. Please try again.';
+            }
+        };
+
+        // Call fetch functions on page load
+        window.onload = async () => {
+            fetchWasteData();
+            fetchWasteManagementData();
+        };
+    </script>
+</body>
+
+</html>

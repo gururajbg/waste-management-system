@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver Login</title>
+</head>
+<body>
+    <h1>Driver Login</h1>
+    <form id="loginForm">
+        <label for="driver_name">Driver Name:</label>
+        <input type="text" id="driver_name" name="driver_name" required>
+        <br>
+        <label for="driver_phone">Phone Number:</label>
+        <input type="text" id="driver_phone" name="driver_phone" required>
+        <br>
+        <button type="submit">Login</button>
+    </form>
+    <div id="loginResponse"></div>
+
+    <script>
+        document.getElementById('loginForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = {
+                driver_name: formData.get('driver_name'),
+                driver_phone: formData.get('driver_phone')
+            };
+
+            const response = await fetch('/api/driver-login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
+
+            const loginResponse = document.getElementById('loginResponse');
+            if (response.ok) {
+                window.location.href = '/driver/dashboard'; // Redirect to driver dashboard
+            } else {
+                loginResponse.innerText = 'Login failed. Please check your credentials.';
+            }
+        };
+    </script>
+</body>
+</html> 
