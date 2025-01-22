@@ -4,6 +4,101 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Login</title>
+    <style>
+        /* General Body Styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+    
+        /* Heading Styles */
+        h1 {
+            font-size: 2.5em;
+            color: #333;
+            margin-bottom: 20px;
+        }
+    
+        /* Form Container Styles */
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: left;
+        }
+    
+        /* Form Label Styles */
+        label {
+            font-size: 1em;
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+    
+        /* Form Input Styles */
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+    
+        /* Button Styles */
+        button {
+            width: 100%;
+            padding: 10px;
+            font-size: 1em;
+            color: #fff;
+            background-color: #1976d2;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+    
+        button:hover {
+            background-color: #004ba0;
+        }
+    
+        /* Response Message Styles */
+        #loginResponse {
+            margin-top: 10px;
+            font-size: 1em;
+            color: #d32f2f;
+        }
+    
+        /* Paragraph and Link Styles */
+        p {
+            font-size: 1em;
+            margin-top: 20px;
+            color: #555;
+        }
+    
+        a {
+            color: #1976d2;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+    
+        a:hover {
+            color: #004ba0;
+        }
+    </style>
+    
 </head>
 <body>
     <h1>User Login</h1>
@@ -18,6 +113,7 @@
     </form>
     <div id="loginResponse"></div>
 
+    <p>New User? <a href="/signup.html">Signup here</a></p>
     <p>Are you a driver? <a href="/driver_login.html">Login here</a></p>
 
     <script>

@@ -126,9 +126,31 @@ app.get('/api/complaints', async (req, res) => {
 // Fetch waste tracking data for the user
 app.get('/api/user-waste-data', requireLogin, async (req, res) => {
     const userId = req.session.user.id;
-    console.log(userId);
+    // console.log(userId);
     try {
         const result = await pool.query('SELECT bio_weight , non_bio_weight FROM WASTE_PRODUCED WHERE user_id = $1 AND w_date = CURRENT_DATE', [userId]);
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error('Error fetching user waste data:', error);
+        res.status(500).json({ error: 'Failed to fetch user waste data' }); 
+    }
+});
+app.get('/api/waste-tracking', requireLogin, async (req, res) => {
+    const userId = req.session.user.id;
+    // console.log(userId);
+    try {
+        const result = await pool.query('SELECT * FROM WASTE_PRODUCED WHERE w_date = CURRENT_DATE');    
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error('Error fetching user waste data:', error);
+        res.status(500).json({ error: 'Failed to fetch user waste data' });
+    }
+});
+app.get('/api/all-users-waste-data', requireLogin, async (req, res) => {
+    const userId = req.session.user.id;
+    // console.log(userId);
+    try {
+        const result = await pool.query('SELECT * FROM WASTE_PRODUCED ');
         res.json(result.rows[0]);
     } catch (error) {
         console.error('Error fetching user waste data:', error);
@@ -384,16 +406,74 @@ app.get('/api/waste-management', requireLogin, async (req, res) => {
                 WASTE_COLLECTION wc
             JOIN 
                 WASTE_PRODUCED wp ON wc.c_date = wp.w_date 
-            WHERE 
-                wp.user_id = $1
             ORDER BY 
                 wc.c_date DESC
-        `, [userId]);
+        `);
 
         res.json(result.rows);
     } catch (error) {
         console.error('Error fetching waste management data:', error);
         res.status(500).json({ error: 'Failed to fetch waste management data' });
+    }
+});
+
+// Endpoint to fetch collection management data
+app.get('/api/collection-management', requireLogin, async (req, res) => {
+    try {
+        const result = await pool.query(`
+            SELECT 
+                wc.area_id, 
+                wc.c_date, 
+                wc.c_time, 
+                wc.vehicle_id
+            FROM 
+                WASTE_COLLECTION wc
+            ORDER BY 
+                wc.c_date DESC
+        `);
+
+        res.json(result.rows);
+    } catch (error) {
+        console.error('Error fetching collection management data:', error);
+        res.status(500).json({ error: 'Failed to fetch collection management data' });
+    }
+});
+
+// Endpoint to fetch user management data
+app.get('/api/user-management', requireLogin, async (req, res) => {
+    try {
+        const result = await pool.query(`
+            SELECT 
+                user_id, 
+                u_name, 
+                email 
+            FROM 
+                USERS
+            ORDER BY 
+                u_name ASC
+        `);
+
+        res.json(result.rows);
+    } catch (error) {
+        console.error('Error fetching user management data:', error);
+        res.status(500).json({ error: 'Failed to fetch user management data' });
+    }
+});
+
+// Endpoint to delete a user
+app.delete('/api/delete-user/:userId', requireLogin, async (req, res) => {
+    const userId = req.params.userId; // Get the user ID from the request parameters
+    try {
+        const result = await pool.query('DELETE FROM USERS WHERE user_id = $1', [userId]);
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        res.json({ message: 'User deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting user:', error);
+        res.status(500).json({ error: 'Failed to delete user' });
     }
 });
 
