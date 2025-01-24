@@ -141,6 +141,58 @@ form input, form select {
     font-size: 0.9rem;
 }
 
+.dropdown {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .dropdown button {
+            background-color: #0056b3;
+            color: white;
+            font-weight: bold;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            width: 100%;
+        }
+
+        .dropdown button:hover {
+            background-color: #003d80;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            z-index: 1;
+            width: 100%;
+        }
+
+        .dropdown-content a {
+            color: #333;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .dropdown-content a:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #ddd;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
 /* Mobile Responsiveness */
 @media screen and (max-width: 768px) {
     .nav {
@@ -173,24 +225,32 @@ form input, form select {
     <h1>Admin Dashboard</h1>
     
     <!-- Navigation Bar -->
-    <div class="nav">
-        <a href="#" onclick="toggleSection('vehicleManagement')">Vehicle Management</a>
-        <a href="#" onclick="toggleSection('complaints')">Complaint Reviewing</a>
-        <a href="#" onclick="toggleSection('wasteTracking')">Waste Production Tracking</a>
-        <a href="#" onclick="toggleSection('collectionManagement')">Waste Collection Management</a>
-        <a href="#" onclick="toggleSection('userManagement')">User Management</a>
-        <a href="#" onclick="toggleSection('reporting')">Reporting & Analytics</a>
-        <a href="/logout">Logout</a>
+    <div class="dropdown">
+        <button>Menu</button>
+        <div class="dropdown-content">
+            <a href="#" onclick="toggleSection('wasteTracking')">Waste Production Tracking</a>
+            <a href="#" onclick="toggleSection('collectionManagement')">Waste Collection Management</a>
+            <a href="#" onclick="toggleSection('userManagement')">User Management</a>
+            <a href="#" onclick="toggleSection('vehicleManagement')">Vehicle Management</a>
+            <a href="#" onclick="toggleSection('complaints')">Complaint Reviewing</a>
+            <a href="#" onclick="toggleSection('reporting')">Reporting & Analytics</a>
+            <a href="/logout">Logout</a>
+        </div>
     </div>
-
     <div class="container">
+
+        <div class="main-content" id="mainContent"></div>
+            <h2>Welcome to Admin Waste Management Dashboard</h2>
+            <p>This comprehensive platform helps you manage and monitor waste management operations effectively.</p>
+            <p>Key features include tracking waste production, managing waste collection, overseeing user activities, monitoring vehicles, reviewing complaints, and generating detailed reports.</p>
+            <p>Select an option from the menu to get started with your administrative tasks.</p>
+        </div>
         <!-- Vehicle Management Section -->
-        <div class="section" id="vehicleManagement">
+        <div class="section" id="vehicleManagement" style="display: none;">
             <h2>Vehicle Management</h2>
             <!-- Sub-navigation for Vehicle Management -->
             <div class="sub-nav">
                 <button onclick="toggleVehicleList()">View Vehicles</button>
-                <button onclick="toggleDriverManagement()">Manage Drivers</button>
             </div>
 
             <!-- Vehicle List Section -->
@@ -227,41 +287,10 @@ form input, form select {
                     </tbody>
                 </table>
             </div>
-
-            <!-- Driver Management Section -->
-            <div id="driverManagement" style="display: none;">
-                <h3>Manage Drivers</h3>
-                <form id="driverForm">
-                    <label for="driver_id">Driver ID:</label>
-                    <input type="text" id="driver_id" name="driver_id" required>
-                    <br>
-                    <label for="driver_name">Driver Name:</label>
-                    <input type="text" id="driver_name" name="driver_name" required>
-                    <br>
-                    <label for="driver_phone">Driver Phone:</label>
-                    <input type="text" id="driver_phone" name="driver_phone" required>
-                    <br>
-                    <button type="submit">Add/Update Driver</button>
-                </form>
-                <div id="driverResponse"></div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Driver ID</th>
-                            <th>Driver Name</th>
-                            <th>Driver Phone</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="driverManagementBody">
-                        <!-- Driver data will be populated here -->
-                    </tbody>
-                </table>
-            </div>
         </div>
 
         <!-- Complaint Reviewing Section -->
-        <div class="section" id="complaints">
+        <div class="section" id="complaints" style="display: none;">
             <h2>Complaint Reviewing</h2>
             <table>
                 <thead>
@@ -283,7 +312,7 @@ form input, form select {
         </div>
 
         <!-- Waste Production Tracking Section -->
-        <div class="section" id="wasteTracking">
+        <div class="section" id="wasteTracking" style="display: none;">
             <h2>Waste Production Tracking</h2>
             <p>Total Bio Waste: <span id="totalBioWaste">0</span> kg</p>
             <p>Total Non-Bio Waste: <span id="totalNonBioWaste">0</span> kg</p>
@@ -303,7 +332,7 @@ form input, form select {
         </div>
 
         <!-- Waste Collection Management Section -->
-        <div class="section" id="collectionManagement">
+        <div class="section" id="collectionManagement" style="display: none;">
             <h2>Waste Collection Management</h2>
             <table>
                 <thead>
@@ -315,13 +344,13 @@ form input, form select {
                     </tr>
                 </thead>
                 <tbody id="collectionManagementBody">
-                    <!-- Collection management data will be populated here -->
+                    <!-- Collection management data will be populated here dynamically -->
                 </tbody>
             </table>
         </div>
-
+        
         <!-- User Management Section -->
-        <div class="section" id="userManagement">
+        <div class="section" id="userManagement" style="display: none;">
             <h2>User Management</h2>
             <table>
                 <thead>
@@ -339,7 +368,7 @@ form input, form select {
         </div>
 
         <!-- Reporting & Analytics Section -->
-        <div class="section" id="reporting">
+        <div class="section" id="reporting" style="display: none;">
             <h2>Reporting & Analytics</h2>
             <p>Here you can generate reports based on waste production, collection efficiency, and user engagement.</p>
             <button onclick="generateReport()">Generate Report</button>
@@ -348,6 +377,20 @@ form input, form select {
     </div>
 
     <script>
+        function toggleSection(sectionId) {
+            const sections = document.querySelectorAll('.section');
+            const mainContent = document.getElementById('mainContent');
+
+            sections.forEach(section => {
+                if (section.id === sectionId) {
+                    section.style.display = 'block';
+                    mainContent.style.display = 'none';
+                } else {
+                    section.style.display = 'none';
+                }
+            });
+        }
+
         // Fetch vehicles for management
         async function fetchVehicles() {
             const response = await fetch('/api/vehicles');
@@ -418,105 +461,20 @@ form input, form select {
             document.getElementById('area_id').value = areaId; // Set the area ID
         }
 
-        // Toggle driver management section
-        function toggleDriverManagement() {
-            const driverManagement = document.getElementById('driverManagement');
-            const vehicleList = document.getElementById('vehicleList');
-            driverManagement.style.display = 'block';
-            vehicleList.style.display = 'none'; // Hide vehicle list
-            fetchDrivers(); // Fetch drivers when the section is shown
-        }
-
         // Toggle vehicle list section
         function toggleVehicleList() {
             const vehicleList = document.getElementById('vehicleList');
-            const driverManagement = document.getElementById('driverManagement');
             vehicleList.style.display = 'block'; // Show vehicle list
-            driverManagement.style.display = 'none'; // Hide driver management
             fetchVehicles(); // Refresh vehicle list
-        }
-
-        // Fetch drivers for management
-        async function fetchDrivers() {
-            const response = await fetch('/api/drivers'); // Adjust the endpoint as needed
-            const drivers = await response.json();
-            const driverManagementBody = document.getElementById('driverManagementBody');
-            driverManagementBody.innerHTML = ''; // Clear existing data
-
-            drivers.forEach(driver => {
-                const row = `<tr>
-                    <td>${driver.driver_id}</td>
-                    <td>${driver.driver_name}</td>
-                    <td>${driver.driver_phone}</td>
-                    <td>
-                        <button onclick="editDriver(${driver.driver_id})">Edit</button>
-                        <button onclick="deleteDriver(${driver.driver_id})">Delete</button>
-                    </td>
-                </tr>`;
-                driverManagementBody.innerHTML += row;
-            });
-        }
-
-        // Handle driver form submission
-        document.getElementById('driverForm').onsubmit = async (e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const data = {
-                driver_id: formData.get('driver_id'),
-                driver_name: formData.get('driver_name'),
-                driver_phone: formData.get('driver_phone')
-            };
-
-            const response = await fetch('/api/manage-driver', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data),
-            });
-
-            const driverResponse = document.getElementById('driverResponse');
-            if (response.ok) {
-                driverResponse.innerText = 'Driver added/updated successfully!';
-                fetchDrivers(); // Refresh the driver list
-            } else {
-                driverResponse.innerText = 'Failed to add/update driver. Please try again.';
-            }
-        };
-
-        // Function to delete a driver
-        async function deleteDriver(driverId) {
-            const response = await fetch(`/api/delete-driver/${driverId}`, { method: 'DELETE' });
-            if (response.ok) {
-                alert('Driver deleted successfully');
-                fetchDrivers(); // Refresh the driver list
-            } else {
-                alert('Failed to delete driver');
-            }
-        }
-
-        // Call fetchVehicles on page load
-        window.onload = async () => {
-            fetchVehicles(); // Fetch vehicles when the page loads
-        };
-
-        // Function to toggle visibility of sections
-        function toggleSection(sectionId) {
-            const sections = document.querySelectorAll('.section');
-            sections.forEach(section => {
-                if (section.id === sectionId) {
-                    section.style.display = section.style.display === 'none' ? 'block' : 'none';
-                } else {
-                    section.style.display = 'none'; // Hide other sections
-                }
-            });
         }
 
         // Fetch and populate data for complaints, waste tracking, collection management, and user management
         async function fetchData() {
             // Fetch complaints
             const complaintsResponse = await fetch('/api/complaints');
+            
             const complaints = await complaintsResponse.json();
+            
             const complaintTableBody = document.getElementById('complaintTableBody');
             complaints.forEach(complaint => {
                 const row = `<tr>
@@ -527,7 +485,7 @@ form input, form select {
                     <td>${complaint.complaint_date}</td>
                     <td>${complaint.complaint_time}</td>
                     <td>${complaint.complaint_status}</td>
-                    <td>${complaint.resolution || 'N/A'}</td>
+                    <td>${complaint.complaint_resolved_date || 'N/A'}</td>
                 </tr>`;
                 complaintTableBody.innerHTML += row;
             });
@@ -535,35 +493,49 @@ form input, form select {
             // Fetch waste tracking data
             const wasteResponse = await fetch('/api/waste-tracking');
             const wasteData = await wasteResponse.json();
-            document.getElementById('totalBioWaste').innerText = wasteData.bio_weight;
-            document.getElementById('totalNonBioWaste').innerText = wasteData.non_bio_weight;
-            document.getElementById('totalWasteToday').innerText = wasteData.total_waste_produced_per_day;
+            document.getElementById('totalBioWaste').innerText = wasteData.bio_weight || 0;
+            document.getElementById('totalNonBioWaste').innerText = wasteData.non_bio_weight || 0;
+            document.getElementById('totalWasteToday').innerText = wasteData.total_waste_produced_per_day || 0;
+ 
 
             // Fetch user-specific waste data
-            const userWasteResponse = await fetch('/api/all-users-waste-data');
-            const userWasteData = await userWasteResponse.json();
-            const userWasteDataBody = document.getElementById('userWasteDataBody');
-            userWasteData.forEach(user => {
-                const row = `<tr>
-                    <td>${user.user_id}</td>
-                    <td>${user.total_waste_produced_per_day}</td>
-                </tr>`;
-                userWasteDataBody.innerHTML += row;
-            });
+            const userWasteResponse = await fetch('/api/all-area-waste-data');
+const userWasteData = await userWasteResponse.json();
+const userWasteDataBody = document.getElementById('userWasteDataBody');
+
+// Check if the response contains a message indicating no data
+if (userWasteData.message) {
+    userWasteDataBody.innerHTML = `<tr><td colspan="2">${userWasteData.message}</td></tr>`;
+} else {
+    // Handle response as array or wrap object in array
+    const userWasteArray = Array.isArray(userWasteData) ? userWasteData : [userWasteData];
+
+    userWasteArray.forEach(user => {
+        const row = `<tr>
+            <td>${user.area_name}</td>
+            <td>${user.total_waste}</td>
+        </tr>`;
+        userWasteDataBody.innerHTML += row;
+    });
+}
+
 
             // Fetch collection management data
             const collectionResponse = await fetch('/api/collection-management');
-            const collectionData = await collectionResponse.json();
-            const collectionManagementBody = document.getElementById('collectionManagementBody');
-            collectionData.forEach(collection => {
-                const row = `<tr>
-                    <td>${collection.c_date} ${collection.c_time}</td>
-                    <td>${collection.c_time}</td>
-                    <td>${collection.bio_weight}</td>
-                    <td>${collection.non_bio_weight}</td>
-                </tr>`;
-                collectionManagementBody.innerHTML += row;
-            });
+const collectionData = await collectionResponse.json();
+const collectionManagementBody = document.getElementById('collectionManagementBody');
+
+// Populate the table with the fetched collection data
+collectionData.forEach(collection => {
+    const row = `<tr>
+        <td>${collection.area_name}</td>
+        <td>${collection.collection_date} ${collection.collection_time}</td>
+        <td>${collection.vehicle_id}</td>
+        <td>${collection.driver_name} ${collection.driver_phone}</td>
+    </tr>`;
+    collectionManagementBody.innerHTML += row;
+});
+
 
             // Fetch user management data
             const userManagementResponse = await fetch('/api/user-management');
@@ -593,17 +565,73 @@ form input, form select {
 
         // Function to generate a report
         async function generateReport() {
-            // Placeholder for report generation logic
-            const reportOutput = document.getElementById('reportOutput');
-            reportOutput.innerHTML = '<p>Generating report...</p>';
-            // Simulate report generation
-            setTimeout(() => {
-                reportOutput.innerHTML = '<p>Report generated successfully!</p>'; // Replace with actual report data
-            }, 2000);
-        }
+    const reportOutput = document.getElementById('reportOutput');
+    reportOutput.innerHTML = '<p>Generating report...</p>';
+
+    try {
+        // Fetch report data from API
+        const response = await fetch('/api/report-data');
+        const data = await response.json();
+
+        // Format and display report data
+        let reportHTML = '<h3>Waste Collection Report</h3>';
+        reportHTML += `
+            <table border="1" style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr>
+                        <th>Area</th>
+                        <th>Collection Date</th>
+                        <th>Collection Time</th>
+                        <th>Vehicle</th>
+                        <th>Driver</th>
+                        <th>Contact</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+        data.forEach(record => {
+            reportHTML += `
+                <tr>
+                    <td>${record.area_name}</td>
+                    <td>${record.c_date}</td>
+                    <td>${record.c_time}</td>
+                    <td>${record.vehicle_id}</td>
+                    <td>${record.driver_name}</td>
+                    <td>${record.driver_phone}</td>
+                </tr>
+            `;
+        });
+        reportHTML += '</tbody></table>';
+        
+        reportOutput.innerHTML = reportHTML;
+
+        // Optionally: Add download button
+        const downloadButton = document.createElement('button');
+        downloadButton.textContent = 'Download Report as PDF';
+        downloadButton.onclick = () => downloadReportAsPDF(reportHTML);
+        reportOutput.appendChild(downloadButton);
+
+    } catch (error) {
+        console.error('Error generating report:', error);
+        reportOutput.innerHTML = '<p>Error generating report. Please try again later.</p>';
+    }
+}
+
+// Example function to download report as PDF
+function downloadReportAsPDF(htmlContent) {
+    const blob = new Blob([htmlContent], { type: 'text/html' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'Waste_Collection_Report.pdf';
+    link.click();
+}
+
 
         // Call fetchData on page load
-        window.onload = fetchData;
+        window.onload = async () => {
+            fetchData();
+            fetchVehicles();
+        };
     </script>
 </body>
 </html>

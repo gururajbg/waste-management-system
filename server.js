@@ -128,7 +128,7 @@ app.get('/api/user-waste-data', requireLogin, async (req, res) => {
     const userId = req.session.user.id;
     // console.log(userId);
     try {
-        const result = await pool.query('SELECT bio_weight , non_bio_weight FROM WASTE_PRODUCED WHERE user_id = $1 AND w_date = CURRENT_DATE', [userId]);
+        const result = await pool.query('SELECT SUM(wp.bio_weight) AS bio_weight, SUM(wp.non_bio_weight) AS non_bio_weight FROM WASTE_PRODUCED wp JOIN USERS u1 ON wp.user_id = u1.user_id WHERE u1.area_id = (SELECT area_id FROM USERS WHERE user_id = $1 LIMIT 1) AND wp.w_date = CURRENT_DATE;', [userId]);
         res.json(result.rows[0]);
     } catch (error) {
         console.error('Error fetching user waste data:', error);
@@ -136,33 +136,60 @@ app.get('/api/user-waste-data', requireLogin, async (req, res) => {
     }
 });
 app.get('/api/waste-tracking', requireLogin, async (req, res) => {
-    const userId = req.session.user.id;
-    // console.log(userId);
     try {
-        const result = await pool.query('SELECT * FROM WASTE_PRODUCED WHERE w_date = CURRENT_DATE');    
+        const result = await pool.query(`
+            SELECT 
+                SUM(bio_weight) AS bio_weight, 
+                SUM(non_bio_weight) AS non_bio_weight, 
+                SUM(bio_weight + non_bio_weight) AS total_waste_produced_per_day 
+            FROM 
+                WASTE_PRODUCED 
+            WHERE 
+                w_date = CURRENT_DATE
+        `);
+
+        // Check if any data was returned
+        if (result.rows.length === 0) {
+            return res.json({ bio_weight: 0, non_bio_weight: 0, total_waste_produced_per_day: 0 });
+        }
+
         res.json(result.rows[0]);
     } catch (error) {
-        console.error('Error fetching user waste data:', error);
-        res.status(500).json({ error: 'Failed to fetch user waste data' });
+        console.error('Error fetching waste tracking data:', error);
+        res.status(500).json({ error: 'Failed to fetch waste tracking data' });
     }
 });
-app.get('/api/all-users-waste-data', requireLogin, async (req, res) => {
+app.get('/api/all-area-waste-data', requireLogin, async (req, res) => {
     const userId = req.session.user.id;
-    // console.log(userId);
     try {
-        const result = await pool.query('SELECT * FROM WASTE_PRODUCED ');
-        res.json(result.rows[0]);
+        const result = await pool.query(`SELECT 
+            a.name AS area_name,
+            SUM(wp.total_waste_produced_per_day) AS total_waste
+        FROM 
+            area a
+        JOIN 
+            waste_produced wp ON a.area_id = wp.area_id
+        WHERE 
+            wp.w_date = CURRENT_DATE
+        GROUP BY 
+            a.name;`);
+
+        // Handle empty result
+        const response = result.rows[0] || { message: "No data available for today." };
+        res.setHeader('Content-Type', 'application/json');
+        res.json(response);
     } catch (error) {
         console.error('Error fetching user waste data:', error);
         res.status(500).json({ error: 'Failed to fetch user waste data' });
     }
 });
 
+
 // Fetch collection management data for the user
 app.get('/api/user-collection-data', requireLogin, async (req, res) => {
     const userId = req.session.user.id;
     try {
-        const result = await pool.query('SELECT w_date , bio_weight ,total_waste_produced_per_day, non_bio_weight FROM WASTE_PRODUCED WHERE user_id = $1', [userId]);
+        const result = await pool.query('SELECT wp.w_date , SUM(wp.bio_weight) AS bio_weight, SUM(wp.non_bio_weight) AS non_bio_weight  FROM WASTE_PRODUCED wp JOIN USERS u1 ON wp.user_id = u1.user_id WHERE u1.area_id = (SELECT area_id FROM USERS WHERE user_id = $1 LIMIT 1) GROUP BY wp.w_date;', [userId]);
        
         
         res.json(result.rows);
@@ -249,22 +276,70 @@ app.post('/api/update-collection', async (req, res) => {
 });
 
 
-// Driver login endpoint
+// const bcrypt = require('bcrypt'); // For password hashing
+
 app.post('/api/driver-login', async (req, res) => {
     const { driver_name, driver_phone } = req.body;
+
     try {
-        const result = await pool.query('SELECT * FROM VEHICLE WHERE driver_name = $1 AND driver_phone = $2', [driver_name, driver_phone]);
+        const result = await pool.query(
+            'SELECT * FROM VEHICLE WHERE driver_name = $1 AND driver_phone = $2',
+            [driver_name, driver_phone]
+        );
         const driver = result.rows[0];
+
         if (driver) {
-            // Set session or token for driver
-            req.session.driverName = driver_name; // Store driver's name in session
-            req.session.driverPhone = driver_phone; // Store driver's phone in session
-            res.redirect('/driver/dashboard'); // Redirect to driver dashboard
+            req.session.driverName = driver_name;
+            req.session.driverPhone = driver_phone;
+
+            
+            if (driver.password == 'wastemngt@123') {
+                // Redirect to password update page
+                console.log("hello");
+                res.redirect('/driver/update-password');
+            } else {
+                // Redirect to dashboard
+                //  console.log("hello");
+                res.redirect('/driver/dashboard');
+            }
         } else {
             res.status(401).json({ error: 'Invalid driver name or phone number' });
         }
     } catch (error) {
+        console.error('Login failed:', error);
         res.status(500).json({ error: 'Login failed' });
+    }
+});
+
+// const path = require('path');
+
+app.get('/driver/update-password', (req, res) => {
+    res.sendFile(path.join(__dirname, 'update_password.html'));
+});
+
+//update drivers password
+app.post('/api/update-password', async (req, res) => {
+    const { new_password } = req.body;
+        driver_name = req.session.driverName;
+       
+
+    try {
+        // Hash the new password
+        // console.log(new_password);
+        // console.log(driver_name);
+        // console.log(driver_phone);
+        const hashedPassword = await bcrypt.hash(new_password, 10);
+
+        // Update the driver's password
+        await pool.query(
+            'UPDATE VEHICLE SET password = $1 WHERE driver_name = $2',
+            [hashedPassword, driver_name]
+        );
+
+        res.json({ message: 'Password updated successfully!' });
+    } catch (error) {
+        console.error('Error updating password:', error);
+        res.status(500).json({ error: 'Failed to update password' });
     }
 });
 
@@ -293,9 +368,9 @@ app.post('/api/manage-vehicle', async (req, res) => {
 });
 
 // Fetch vehicles for management
-app.get('/api/vehicles', async (req, res) => {
+app.get('/api/vehicles', requireLogin, async (req, res) => {
     try {
-        const result = await pool.query('SELECT * FROM VEHICLE');
+        const result = await pool.query('SELECT vehicle_id, driver_name, driver_phone, area_id FROM VEHICLE ORDER BY vehicle_id ASC');
         res.json(result.rows);
     } catch (error) {
         console.error('Error fetching vehicles:', error);
@@ -353,19 +428,46 @@ app.get('/api/total-waste', async (req, res) => {
 
 // Endpoint to fetch collection history
 app.get('/api/collection-history', async (req, res) => {
-    const vehicleId = await getVehicleIdFromSession(req); // Function to get vehicle ID from session
-
     try {
-        const result = await pool.query(
-            'SELECT c.c_date, c.user_id, c.area_id, p.bio_weight, p.non_bio_weight FROM WASTE_COLLECTION c JOIN WASTE_PRODUCED p ON c.user_id = p.user_id WHERE c.vehicle_id = $1 ORDER BY c.c_date DESC',
-            [vehicleId]
-        );
+        // Get vehicle ID from session
+        const vehicleId = await getVehicleIdFromSession(req);
+
+        // Fetch unique collection history
+        const query = `
+            SELECT DISTINCT 
+                c.c_date, 
+                c.area_id, 
+                p.bio_weight, 
+                p.non_bio_weight 
+            FROM 
+                WASTE_COLLECTION c 
+            JOIN 
+                WASTE_PRODUCED p 
+            ON 
+                c.area_id = p.area_id 
+            WHERE 
+                c.vehicle_id = $1 
+            ORDER BY 
+                c.c_date DESC;
+        `;
+        const result = await pool.query(query, [vehicleId]);
+
+        // Check if the result contains data
+        if (result.rows.length === 0) {
+            return res.json({ message: "No collection history available for this vehicle." });
+        }
+
+        // Respond with the unique collection history
         res.json(result.rows);
     } catch (error) {
+        // Log the error for debugging purposes
         console.error('Error fetching collection history:', error);
-        res.status(500).json({ error: 'Failed to fetch collection history' });
+
+        // Respond with a 500 error status and meaningful error message
+        res.status(500).json({ error: 'Failed to fetch collection history. Please try again later.' });
     }
 });
+
 
 // Endpoint to submit feedback
 app.post('/api/submit-feedback', async (req, res) => {
@@ -422,14 +524,20 @@ app.get('/api/collection-management', requireLogin, async (req, res) => {
     try {
         const result = await pool.query(`
             SELECT 
-                wc.area_id, 
-                wc.c_date, 
-                wc.c_time, 
-                wc.vehicle_id
-            FROM 
-                WASTE_COLLECTION wc
-            ORDER BY 
-                wc.c_date DESC
+    a.name AS area_name,
+    wc.c_date AS collection_date,
+    wc.c_time AS collection_time,
+    v.vehicle_id,
+    v.driver_name,
+    v.driver_phone
+FROM 
+    area a
+JOIN 
+    waste_collection wc ON a.area_id = wc.area_id
+JOIN 
+    vehicle v ON wc.vehicle_id = v.vehicle_id
+ORDER BY 
+    a.name, wc.c_date;
         `);
 
         res.json(result.rows);
@@ -477,7 +585,76 @@ app.delete('/api/delete-user/:userId', requireLogin, async (req, res) => {
     }
 });
 
+// Endpoint to fetch drivers
+app.get('/api/drivers', requireLogin, async (req, res) => {
+    try {
+        const result = await pool.query('SELECT vehicle_id, driver_name, driver_phone FROM VEHICLE ORDER BY driver_name ASC');
+        res.json(result.rows);
+    } catch (error) {
+        console.error('Error fetching drivers:', error);
+        res.status(500).json({ error: 'Failed to fetch drivers' });
+    }
+});
+
+// Endpoint to fetch report data
+app.get('/api/report-data', requireLogin, async (req, res) => {
+    try {
+        const result = await pool.query(`
+            SELECT 
+                wc.area_id,
+                wc.c_date,
+                wc.c_time,
+                wc.vehicle_id,
+                d.driver_name,
+                d.driver_phone
+            FROM 
+                WASTE_COLLECTION wc
+            JOIN 
+                VEHICLE d ON wc.vehicle_id = d.vehicle_id
+            ORDER BY 
+                wc.c_date DESC, wc.c_time DESC
+        `);
+
+        // Format the result to include area names if needed
+        const reportData = result.rows.map(record => ({
+            area_name: record.area_id, // Assuming you have a way to get area names
+            c_date: record.c_date,
+            c_time: record.c_time,
+            vehicle_id: record.vehicle_id,
+            driver_name: record.driver_name,
+            driver_phone: record.driver_phone
+        }));
+
+        res.json(reportData);
+    } catch (error) {
+        console.error('Error fetching report data:', error);
+        res.status(500).json({ error: 'Failed to fetch report data' });
+    }
+});
+
 // Start the server
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
 });
+
+async function getVehicleIdFromSession(req) {
+    const driverName = req.session.driverName; // Assuming you store the driver's name in the session
+    const driverPhone = req.session.driverPhone; // Assuming you store the driver's phone in the session
+
+    if (!driverName || !driverPhone) {
+        throw new Error('Driver not logged in');
+    }
+
+    try {
+        const result = await pool.query('SELECT vehicle_id FROM VEHICLE WHERE driver_name = $1 AND driver_phone = $2', [driverName, driverPhone]);
+        const vehicle = result.rows[0];
+        if (vehicle) {
+            return vehicle.vehicle_id; // Return the vehicle ID
+        } else {
+            throw new Error('Vehicle not found for this driver');
+        }
+    } catch (error) {
+        console.error('Error fetching vehicle ID:', error);
+        throw new Error('Failed to fetch vehicle ID');
+    }
+}

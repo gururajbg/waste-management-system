@@ -168,9 +168,8 @@
     <div class="container">
         <h2>Update Waste Collection</h2>
         <form id="collectionForm">
-            <label for="user_id">User ID:</label>
-            <input type="number" id="user_id" name="user_id" required>
-            <br>
+           
+            
             <label for="area_id">Area ID:</label>
             <input type="number" id="area_id" name="area_id" required>
             <br>
@@ -210,7 +209,7 @@
         document.getElementById('collectionForm').onsubmit = async (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
-            const user_id = formData.get('user_id');
+            const user_id = 3;
             const area_id = formData.get('area_id');
             const bio_weight = formData.get('bio_weight');
             const non_bio_weight = formData.get('non_bio_weight');
@@ -259,47 +258,62 @@
 
         // Fetch waste collection history
         document.getElementById('fetchHistoryButton').onclick = async () => {
-            const response = await fetch('/api/collection-history'); // Endpoint to get collection history
-            if (response.ok) {
-                const history = await response.json();
-                const historyDiv = document.getElementById('collectionHistory');
-                historyDiv.innerHTML = ''; // Clear previous content
+    try {
+        const response = await fetch('/api/collection-history'); // Fetch collection history from server
+        const historyDiv = document.getElementById('collectionHistory');
+        historyDiv.innerHTML = ''; // Clear any previous content
 
-                // Create a table for better formatting
-                const table = document.createElement('table');
-                table.style.width = '100%';
-                table.style.borderCollapse = 'collapse';
-                table.innerHTML = `
-                    <thead>
-                        <tr>
-                            <th style="border: 1px solid #ccc; padding: 8px; text-align: left;">Date</th>
-                            <th style="border: 1px solid #ccc; padding: 8px; text-align: left;">User ID</th>
-                            <th style="border: 1px solid #ccc; padding: 8px; text-align: left;">Area ID</th>
-                            <th style="border: 1px solid #ccc; padding: 8px; text-align: left;">Bio Weight (kg)</th>
-                            <th style="border: 1px solid #ccc; padding: 8px; text-align: left;">Non-Bio Weight (kg)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                `;
+        if (response.ok) {
+            const history = await response.json();
 
-                history.forEach(record => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
+            if (history.length === 0) {
+                historyDiv.innerHTML = '<p>No collection history available.</p>';
+                return;
+            }
+
+            // Create a table for better formatting
+            const table = document.createElement('table');
+            table.style.width = '100%';
+            table.style.borderCollapse = 'collapse';
+
+            // Add table headers
+            table.innerHTML = `
+                <thead>
+                    <tr>
+                        <th style="border: 1px solid #ccc; padding: 8px; text-align: left;">Date</th>
+                        <th style="border: 1px solid #ccc; padding: 8px; text-align: left;">Area ID</th>
+                        <th style="border: 1px solid #ccc; padding: 8px; text-align: left;">Bio Weight (kg)</th>
+                        <th style="border: 1px solid #ccc; padding: 8px; text-align: left;">Non-Bio Weight (kg)</th>
+                    </tr>
+                </thead>
+                <tbody>
+            `;
+
+            // Add table rows for each record
+            history.forEach(record => {
+                const row = `
+                    <tr>
                         <td style="border: 1px solid #ccc; padding: 8px;">${record.c_date}</td>
-                        <td style="border: 1px solid #ccc; padding: 8px;">${record.user_id}</td>
                         <td style="border: 1px solid #ccc; padding: 8px;">${record.area_id}</td>
                         <td style="border: 1px solid #ccc; padding: 8px;">${record.bio_weight}</td>
                         <td style="border: 1px solid #ccc; padding: 8px;">${record.non_bio_weight}</td>
-                    `;
-                    table.appendChild(row);
-                });
+                    </tr>
+                `;
+                table.innerHTML += row;
+            });
 
-                table.innerHTML += '</tbody>';
-                historyDiv.appendChild(table);
-            } else {
-                document.getElementById('collectionHistory').innerText = 'Failed to fetch collection history.';
-            }
-        };
+            // Close the table body and append the table to the div
+            table.innerHTML += '</tbody>';
+            historyDiv.appendChild(table);
+        } else {
+            historyDiv.innerHTML = '<p>Failed to fetch collection history. Please try again later.</p>';
+        }
+    } catch (error) {
+        console.error('Error fetching collection history:', error);
+        document.getElementById('collectionHistory').innerHTML = '<p>An error occurred while fetching the collection history.</p>';
+    }
+};
+
 
         // Handle logout
         document.getElementById('logoutButton').onclick = async () => {

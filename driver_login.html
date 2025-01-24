@@ -95,29 +95,38 @@
     <div id="loginResponse"></div>
 
     <script>
-        document.getElementById('loginForm').onsubmit = async (e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const data = {
-                driver_name: formData.get('driver_name'),
-                driver_phone: formData.get('driver_phone')
-            };
+ document.getElementById('loginForm').onsubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = {
+        driver_name: formData.get('driver_name'),
+        driver_phone: formData.get('driver_phone'),
+        password: formData.get('password') // Add password field
+    };
 
-            const response = await fetch('/api/driver-login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data),
-            });
+    const loginResponse = document.getElementById('loginResponse');
+    
+    try {
+        const response = await fetch('/api/driver-login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        });
 
-            const loginResponse = document.getElementById('loginResponse');
-            if (response.ok) {
-                window.location.href = '/driver/dashboard'; // Redirect to driver dashboard
-            } else {
-                loginResponse.innerText = 'Login failed. Please check your credentials.';
-            }
-        };
+
+        if (response.ok) {
+            // Redirect based on server response
+            window.location.href = response.url
+        } else {
+            loginResponse.innerText = result.error || 'Login failed. Please check your credentials.';
+        }
+    } catch (error) {
+        loginResponse.innerText = 'An error occurred during login.';
+        console.error('Login error:', error);
+    }
+};
     </script>
 </body>
 </html> 

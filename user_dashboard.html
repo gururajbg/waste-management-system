@@ -150,6 +150,144 @@
         font-size: 0.9rem;
     }
 
+    .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown button {
+            background-color: #0056b3;
+            color: white;
+            font-weight: bold;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .dropdown button:hover {
+            background-color: #003d80;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            z-index: 1;
+            min-width: 200px;
+        }
+
+        .dropdown-content a {
+            color: #333;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .dropdown-content a:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #ddd;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        /* Section Styling */
+        .section {
+            display: none;
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .section h2 {
+            font-size: 1.8rem;
+            color: #0056b3;
+            margin-bottom: 20px;
+        }
+
+        /* Main Page Content */
+        .main-content {
+            display: block;
+            text-align: center;
+        }
+
+        .main-content h2 {
+            font-size: 2rem;
+            color: #0056b3;
+            margin-bottom: 20px;
+        }
+
+        .main-content p {
+            font-size: 1rem;
+            color: #333;
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+
+
+        .dropdown {
+        position: relative;
+        display: inline-block;
+        width: 100%;
+    }
+
+    .dropdown button {
+        background-color: #0056b3;
+        color: white;
+        font-weight: bold;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1rem;
+        width: 100%;
+    }
+
+    .dropdown button:hover {
+        background-color: #003d80;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #f9f9f9;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        border-radius: 5px;
+        z-index: 1;
+        width: 100%;
+    }
+
+    .dropdown-content a {
+        color: #333;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .dropdown-content a:last-child {
+        border-bottom: none;
+    }
+
+    .dropdown-content a:hover {
+        background-color: #ddd;
+    }
+
+    .dropdown:hover .dropdown-content {
+        display: block;
+    }
+
     /* Mobile Responsiveness */
     @media screen and (max-width: 768px) {
         .nav {
@@ -174,6 +312,13 @@
         form input, form select, form textarea {
             font-size: 0.9rem;
         }
+        .dropdown-content {
+                min-width: 150px;
+            }
+
+            .dropdown button {
+                width: 100%;
+            }
     }
 
 
@@ -184,15 +329,26 @@
     <h1>User Dashboard</h1>
 
     <!-- Navigation Bar -->
-    <div class="nav">
-        <a href="#" onclick="toggleSection('registerComplaint')">Register Complaint</a>
-        <a href="#" onclick="toggleSection('trackWaste')">Track Waste Production</a>
-        <a href="#" onclick="toggleSection('manageCollection')">Manage Waste Collection</a>
-        <a href="#" onclick="toggleSection('profileManagement')">Profile Management</a>
-        <a href="/logout">Logout</a>
+    <div class="dropdown">
+        <button>Menu</button>
+        <div class="dropdown-content">
+            <a href="#" onclick="toggleSection('trackWaste')">Track Waste Production</a>
+            <a href="#" onclick="toggleSection('manageCollection')">Manage Waste Collection</a>
+            <a href="#" onclick="toggleSection('profileManagement')">Profile Management</a>
+            <a href="#" onclick="toggleSection('registerComplaint')">Register Complaint</a>
+            <a href="/logout">Logout</a>
+        </div>
     </div>
 
     <div class="container">
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <h2>Welcome to Waste Management Dashboard</h2>
+            <p>This platform helps you track and manage your waste production effectively.</p>
+            <p>You can view detailed statistics on bio and non-bio waste, manage collection schedules, and even register complaints for waste management issues.</p>
+            <p>Select an option from the menu to get started.</p>
+        </div>
+
         <!-- Register Complaint Section -->
         <div class="section" id="registerComplaint">
             <h2>Register Complaint</h2>
@@ -238,7 +394,7 @@
         <div class="section" id="profileManagement">
             <h2>Profile Management</h2>
             <form id="profileForm">
-                <label for="u_name">Name:</label>
+                <label for="u_name">Name:</label> 
                 <input type="text" id="u_name" name="u_name" required>
                 <br>
                 <label for="email">Email:</label>
@@ -254,15 +410,17 @@
         // Function to toggle visibility of sections
         function toggleSection(sectionId) {
             const sections = document.querySelectorAll('.section');
+            const mainContent = document.getElementById('mainContent');
+
             sections.forEach(section => {
                 if (section.id === sectionId) {
-                    section.style.display = section.style.display === 'none' ? 'block' : 'none';
+                    section.style.display = 'block';
+                    mainContent.style.display = 'none';
                 } else {
-                    section.style.display = 'none'; // Hide other sections
+                    section.style.display = 'none';
                 }
             });
         }
-
         // Fetch and populate waste production data
         async function fetchWasteData() {
             const response = await fetch('/api/user-waste-data'); // Adjust the endpoint as needed
@@ -281,10 +439,11 @@
 
             wasteData.forEach(record => {
                 const row = `<tr>
+                    
                     <td>${record.w_date}</td>
                     <td>${record.bio_weight || 0}</td>
                     <td>${record.non_bio_weight || 0}</td>
-                    <td>${record.total_waste_produced_per_day}</td>
+                    <td>${(record.bio_weight || 0) + (record.non_bio_weight || 0)}</td>
                 </tr>`;
                 wasteManagementBody.innerHTML += row;
             });
