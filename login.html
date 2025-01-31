@@ -4,117 +4,314 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* General Body Styles */
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             margin: 0;
-            padding: 0;
-            background-color: #f4f4f9;
-            color: #333;
+            padding: 20px;
+            background: linear-gradient(135deg, #f6f8fb 0%, #f1f4f9 100%);
+            color: #2d3436;
+            line-height: 1.6;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            animation: fadeIn 1s ease-in-out;
         }
-    
-        /* Heading Styles */
-        h1 {
-            font-size: 2.5em;
-            color: #333;
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 400px;
+            position: relative;
+            overflow: hidden;
+            animation: zoomIn 0.5s ease-in-out;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-header h1 {
+            font-size: 2.8rem;
+            background: linear-gradient(45deg, #2d3436, #636e72);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 10px;
+            animation: slideIn 0.8s ease-in-out;
+        }
+
+        .login-header p {
+            color: #636e72;
+            font-size: 1rem;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes zoomIn {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .form-group {
+            position: relative;
             margin-bottom: 20px;
         }
-    
-        /* Form Container Styles */
-        form {
-            background-color: #fff;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            width: 300px;
-            text-align: left;
+
+        .form-group i {
+            position: absolute;
+            left: 15px;
+            top: 50px;
+            color: #636e72;
+            transform: translateY(-50%);
         }
-    
-        /* Form Label Styles */
+
         label {
-            font-size: 1em;
             display: block;
-            margin-bottom: 5px;
-            color: #555;
+            margin-bottom: 8px;
+            color: #2d3436;
+            font-weight: 600;
+            font-size: 0.95rem;
         }
-    
-        /* Form Input Styles */
-        input[type="email"],
-        input[type="password"] {
+
+        input {
             width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 1em;
+            padding: 12px 15px 12px 45px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+            color: #2d3436;
+            box-sizing: border-box;
         }
-    
-        /* Button Styles */
+
+        input:focus {
+            border-color: #2d3436;
+            outline: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transform: translateY(-1px);
+        }
+
         button {
             width: 100%;
-            padding: 10px;
-            font-size: 1em;
-            color: #fff;
-            background-color: #1976d2;
+            background: linear-gradient(45deg, #2d3436, #636e72);
+            color: white;
+            padding: 15px;
             border: none;
-            border-radius: 4px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: all 0.3s ease, transform 0.2s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
         }
-    
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: 0.5s;
+            z-index: -1;
+        }
+
+        button:hover::before {
+            left: 0;
+            animation: slice 0.5s ease-in-out;
+        }
+
+        @keyframes slice {
+            0% {
+                transform: translateX(-100%);
+            }
+            100% {
+                transform: translateX(0);
+            }
+        }
+
         button:hover {
-            background-color: #004ba0;
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            background: linear-gradient(45deg, #636e72, #2d3436);
         }
-    
-        /* Response Message Styles */
-        #loginResponse {
-            margin-top: 10px;
-            font-size: 1em;
-            color: #d32f2f;
+
+        button:active {
+            transform: translateY(0) scale(1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
-    
-        /* Paragraph and Link Styles */
-        p {
-            font-size: 1em;
-            margin-top: 20px;
-            color: #555;
+
+        .links {
+            margin-top: 25px;
+            text-align: center;
         }
-    
-        a {
-            color: #1976d2;
+
+        .links a {
+            color: #2d3436;
             text-decoration: none;
-            font-weight: bold;
-            transition: color 0.3s;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-block;
+            margin: 0 10px;
         }
-    
-        a:hover {
-            color: #004ba0;
+
+        .links a:hover {
+            transform: translateY(-1px);
+            color: #636e72;
         }
+        .links a {
+
+position: relative;
+
+text-decoration: none;
+
+color: #2d3436;
+
+transition: all 0.3s ease;
+
+}
+
+
+.links a::after {
+
+content: '';
+
+position: absolute;
+
+width: 0;
+
+height: 2px;
+
+bottom: -3px;
+
+left: 0;
+
+background-color: #2d3436;
+
+transition: width 0.3s ease;
+
+}
+
+
+.links a:hover::after {
+
+width: 100%;
+
+}
+
+
+button {
+
+position: relative;
+
+overflow: hidden;
+
+z-index: 1;
+
+}
+
+
+button::before {
+
+content: '';
+
+position: absolute;
+
+top: 0;
+
+left: -100%;
+
+width: 100%;
+
+height: 100%;
+
+background: rgba(255, 255, 255, 0.2);
+
+transition: 0.5s;
+
+z-index: -1;
+
+}
+
+
+button:hover::before {
+
+left: 0;
+
+animation: slice 0.5s ease-in-out;
+
+}
+
+
+@keyframes slice {
+
+0% {
+
+    transform: translateX(-100%);
+
+}
+
+100% {
+
+    transform: translateX(0);
+
+}
+
+}
     </style>
-    
 </head>
 <body>
-    <h1>User Login</h1>
-    <form id="loginForm">
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required>
-        <br>
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required>
-        <br>
-        <button type="submit">Login</button>
-    </form>
-    <div id="loginResponse"></div>
-
-    <p>New User? <a href="/signup.html">Signup here</a></p>
-    <p>Are you a driver? <a href="/driver_login.html">Login here</a></p>
+    <div class="login-container">
+        <div class="login-header">
+            <h1>Login</h1>
+            <p>Welcome back! Please enter your credentials</p>
+        </div>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <i class="fas fa-envelope"></i>
+                <input type="email" id="email" name="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <i class="fas fa-lock"></i>
+                <input type="password" id="password" name="password" required>
+            </div>
+            
+            <button type="submit">Login</button>
+        </form>
+        
+        <div class="links">
+            <p>New User? <a href="/signup.html">Signup here</a></p>
+            <p>Are you a driver? <a href="/driver_login.html">Login here</a></p>
+        </div>
+    </div>
 
     <script>
         document.getElementById('loginForm').onsubmit = async (e) => {
@@ -122,18 +319,23 @@
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
-            const response = await fetch('/api/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email, password }),
-            });
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password }),
+                });
 
-            if (response.ok) {
-                window.location.href = response.url; // Redirect based on user role
-            } else {
-                alert('Login failed. Please check your credentials.');
+                if (response.ok) {
+                    window.location.href = response.url; // Redirect based on user role
+                } else {
+                    alert('Login failed. Please check your credentials.');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                alert('An error occurred. Please try again.');
             }
         };
     </script>

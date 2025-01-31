@@ -5,51 +5,128 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome</title>
     <style>
-        /* General Body Styles */
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             margin: 0;
-            padding: 0;
-            background-color: #f4f4f9;
-            color: #333;
+            padding: 20px;
+            background: linear-gradient(135deg, #f6f8fb 0%, #f1f4f9 100%);
+            color: #2d3436;
+            line-height: 1.6;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(#2d3436 0.5px, transparent 0.5px),
+                radial-gradient(#2d3436 0.5px, #f6f8fb 0.5px);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+        }
+    
+        .welcome-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.5);
             text-align: center;
+            max-width: 600px;
+            width: 90%;
+            animation: fadeIn 0.8s ease-in-out;
         }
     
-        /* Heading Styles */
         h1 {
-            font-size: 2.5em;
-            color: #333;
-            margin-bottom: 20px;
+            font-size: 2.8rem;
+            background: linear-gradient(45deg, #2d3436, #636e72);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 30px;
         }
     
-        /* Paragraph Styles */
         p {
-            font-size: 1.2em;
-            color: #555;
-            margin-bottom: 15px;
+            font-size: 1.1rem;
+            color: #636e72;
+            margin: 15px 0;
         }
     
-        /* Countdown Timer Styles */
         #countdown {
-            font-weight: bold;
-            color: #d32f2f;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2d3436;
+            display: block;
+            margin: 20px 0;
         }
     
-        /* Link Styles */
         a {
-            color: #1976d2;
+            color: #2d3436;
             text-decoration: none;
-            font-weight: bold;
-            transition: color 0.3s;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
         }
     
-        a:hover {
-            color: #004ba0;
+        a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -3px;
+            left: 0;
+            background-color: #2d3436;
+            transition: width 0.3s ease;
+        }
+    
+        a:hover::after {
+            width: 100%;
+        }
+    
+        /* Button slice effect */
+        button {
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+    
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: 0.5s;
+            z-index: -1;
+        }
+    
+        button:hover::before {
+            left: 0;
+            animation: slice 0.5s ease-in-out;
+        }
+    
+        @keyframes slice {
+            0% {
+                transform: translateX(-100%);
+            }
+            100% {
+                transform: translateX(0);
+            }
+        }
+    
+        /* Fade in animation */
+        @keyframes fadeIn {
+            from { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
     
@@ -73,8 +150,10 @@
     </script>
 </head>
 <body>
-    <h1>Welcome to the Waste Management System</h1>
-    <p>You will be redirected to the login page in <span id="countdown">5</span> seconds.</p>
-    <p>If you are not redirected, <a href="/login">click here to login</a>.</p>
+    <div class="welcome-container">
+        <h1>Welcome to the Waste Management System</h1>
+        <p>You will be redirected to the login page in <span id="countdown">5</span> seconds.</p>
+        <p>If you are not redirected, <a href="/login">click here to login</a>.</p>
+    </div>
 </body>
 </html>
