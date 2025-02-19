@@ -842,6 +842,276 @@
         }
     }
 
+    /* Chatbot Styles */
+    .chatbot-container {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 350px;
+        max-height: 500px;
+        background: var(--card-bg, white);
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        display: none;
+        flex-direction: column;
+        z-index: 1000;
+        border: 1px solid var(--border-color, rgba(0, 0, 0, 0.1));
+        animation: slideUp 0.3s ease-out;
+    }
+
+    .chatbot-header {
+        padding: 15px;
+        background: linear-gradient(45deg, #2d3436, #636e72);
+        color: white;
+        border-radius: 16px 16px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .chatbot-header h3 {
+        margin: 0;
+        font-size: 1.1rem;
+    }
+
+    .close-chat {
+        background: none;
+        border: none;
+        color: white;
+        cursor: pointer;
+        font-size: 1.2rem;
+        padding: 5px;
+    }
+
+    .chatbot-messages {
+        padding: 15px;
+        overflow-y: auto;
+        max-height: 350px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .message {
+        max-width: 80%;
+        padding: 10px 15px;
+        border-radius: 15px;
+        margin: 5px 0;
+        animation: fadeIn 0.3s ease-out;
+    }
+
+    .user-message {
+        background: linear-gradient(45deg, #2d3436, #636e72);
+        color: white;
+        align-self: flex-end;
+        border-bottom-right-radius: 5px;
+    }
+
+    .bot-message {
+        background: var(--hover-color, #f1f4f9);
+        color: var(--text-color, #2d3436);
+        align-self: flex-start;
+        border-bottom-left-radius: 5px;
+    }
+
+    .chatbot-input {
+        padding: 15px;
+        border-top: 1px solid var(--border-color, rgba(0, 0, 0, 0.1));
+        display: flex;
+        gap: 10px;
+    }
+
+    .chatbot-input input {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid var(--border-color, rgba(0, 0, 0, 0.1));
+        border-radius: 20px;
+        outline: none;
+    }
+
+    .send-message {
+        background: linear-gradient(45deg, #2d3436, #636e72);
+        color: white;
+        border: none;
+        border-radius: 20px;
+        padding: 10px 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .chatbot-toggle {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 60px;
+        height: 60px;
+        border-radius: 30px;
+        background: linear-gradient(45deg, #2d3436, #636e72);
+        color: white;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+        z-index: 999;
+    }
+
+    .chatbot-toggle:hover {
+        transform: scale(1.1);
+    }
+
+    @keyframes slideUp {
+        from {
+            transform: translateY(100px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    /* Dark theme support */
+    [data-theme="dark"] .chatbot-container {
+        background: var(--card-bg);
+        border-color: var(--border-color);
+    }
+
+    [data-theme="dark"] .bot-message {
+        background: var(--hover-color);
+        color: var(--text-color);
+    }
+
+    [data-theme="dark"] .chatbot-input input {
+        background: var(--card-bg);
+        color: var(--text-color);
+        border-color: var(--border-color);
+    }
+
+    .suggestions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 10px;
+    }
+
+    .suggestion-btn {
+        background: var(--hover-color, #f1f4f9);
+        border: 1px solid var(--border-color, rgba(0, 0, 0, 0.1));
+        border-radius: 15px;
+        padding: 5px 10px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .suggestion-btn:hover {
+        background: var(--gradient-start, #2d3436);
+        color: white;
+    }
+
+    .typing-indicator {
+        display: flex;
+        gap: 4px;
+        padding: 8px 12px;
+        background: var(--hover-color, #f1f4f9);
+        border-radius: 15px;
+        width: fit-content;
+    }
+
+    .typing-dot {
+        width: 8px;
+        height: 8px;
+        background: var(--text-color, #2d3436);
+        border-radius: 50%;
+        opacity: 0.4;
+        animation: typingAnimation 1s infinite;
+    }
+
+    .typing-dot:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    .typing-dot:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+
+    @keyframes typingAnimation {
+        0%, 100% { opacity: 0.4; }
+        50% { opacity: 1; }
+    }
+
+    /* Feedback Section Styles */
+    .rating-container {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+        gap: 10px;
+        margin: 10px 0;
+    }
+
+    .rating-container input {
+        display: none;
+    }
+
+    .rating-container label {
+        font-size: 2rem;
+        color: #ddd;
+        cursor: pointer;
+        transition: color 0.3s ease;
+    }
+
+    .rating-container label:hover,
+    .rating-container label:hover ~ label,
+    .rating-container input:checked ~ label {
+        color: #ffd700;
+    }
+
+    .analytics-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-top: 30px;
+    }
+
+    .analytics-card {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        text-align: center;
+    }
+
+    .analytics-title {
+        display: block;
+        font-size: 0.9rem;
+        color: #636e72;
+        margin-bottom: 10px;
+    }
+
+    .analytics-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #2d3436;
+        background: linear-gradient(45deg, #2d3436, #636e72);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    /* Add feedback link to dropdown menu */
+
     </style>
 </head>
 
@@ -866,6 +1136,9 @@
             </a>
             <a href="#" onclick="toggleSection('registerComplaint')">
                 <i class="fas fa-exclamation-circle"></i> Register Complaint
+            </a>
+            <a href="#" onclick="toggleSection('userFeedback')">
+                <i class="fas fa-star"></i> Provide Feedback
             </a>
             <a href="/logout">
                 <i class="fas fa-sign-out-alt"></i> Logout
@@ -997,9 +1270,66 @@
             </form>
             <div id="profileResponse"></div>
         </div>
+
+        <!-- Feedback Section -->
+        <div class="section" id="userFeedback">
+            <h2>Provide Feedback</h2>
+            <div class="form-container">
+                <form id="feedbackForm">
+                    <label for="feedbackCategory">Category:</label>
+                    <select id="feedbackCategory" name="feedbackCategory" required>
+                        <option value="general">General</option>
+                        <option value="collection">Waste Collection</option>
+                        <option value="segregation">Waste Segregation</option>
+                        <option value="app">Application</option>
+                    </select>
+
+                    <label for="feedbackRating">Rating:</label>
+                    <div class="rating-container">
+                        <input type="radio" id="star5" name="rating" value="5" required>
+                        <label for="star5">★</label>
+                        <input type="radio" id="star4" name="rating" value="4">
+                        <label for="star4">★</label>
+                        <input type="radio" id="star3" name="rating" value="3">
+                        <label for="star3">★</label>
+                        <input type="radio" id="star2" name="rating" value="2">
+                        <label for="star2">★</label>
+                        <input type="radio" id="star1" name="rating" value="1">
+                        <label for="star1">★</label>
+                    </div>
+
+                    <label for="feedbackText">Your Feedback:</label>
+                    <textarea id="feedbackText" name="feedbackText" required></textarea>
+
+                    <button type="submit">Submit Feedback</button>
+                </form>
+                <div id="feedbackResponse"></div>
+            </div>
+
+            <!-- Feedback Analytics -->
+            <div class="feedback-analytics">
+                <h3>Feedback Overview</h3>
+                <div class="analytics-cards">
+                    <div class="analytics-card">
+                        <span class="analytics-title">Average Rating</span>
+                        <span class="analytics-value" id="averageRating">0.0</span>
+                    </div>
+                    <div class="analytics-card">
+                        <span class="analytics-title">Total Feedback</span>
+                        <span class="analytics-value" id="totalFeedback">0</span>
+                    </div>
+                    <div class="analytics-card">
+                        <span class="analytics-title">Recent Sentiment</span>
+                        <span class="analytics-value" id="recentSentiment">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
+        const GEMINI_API_KEY = 'AIzaSyBctPXm7a_5fWDIJLBMBGqSSkqODotTl-4';
+
         // Function to toggle visibility of sections
         function toggleSection(sectionId) {
             const sections = document.querySelectorAll('.section');
@@ -1209,6 +1539,7 @@
             fetchWasteData();
             fetchWasteManagementData();
             fetchCollectionSchedule();
+            updateFeedbackAnalytics();
         };
 
         // Add this at the start of your script section
@@ -1239,7 +1570,286 @@
                 alert('Failed to log out. Please try again.');
             }
         };
+
+        // Chatbot functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            const chatbotToggle = document.getElementById('chatbotToggle');
+            const chatbotContainer = document.getElementById('chatbotContainer');
+            const closeChat = document.getElementById('closeChat');
+            const userInput = document.getElementById('userInput');
+            const sendMessage = document.getElementById('sendMessage');
+            const chatbotMessages = document.getElementById('chatbotMessages');
+
+            // Toggle chatbot visibility
+            chatbotToggle.addEventListener('click', () => {
+                chatbotContainer.style.display = 'flex';
+                chatbotToggle.style.display = 'none';
+            });
+
+            closeChat.addEventListener('click', () => {
+                chatbotContainer.style.display = 'none';
+                chatbotToggle.style.display = 'flex';
+            });
+
+            // Send message function
+            const sendUserMessage = async () => {
+                const message = userInput.value.trim();
+                if (message) {
+                    appendMessage(message, 'user');
+                    userInput.value = '';
+                    
+                    const botResponse = await getBotResponse(message);
+                    // Store the interaction in MongoDB
+                    await storeChatInteraction(message, botResponse);
+                }
+            };
+
+            // Send message on button click or enter key
+            sendMessage.addEventListener('click', sendUserMessage);
+            userInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    sendUserMessage();
+                }
+            });
+
+            // Append message to chat
+            const appendMessage = (message, sender) => {
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message', `${sender}-message`);
+                
+                if (typeof message === 'object') {
+                    // Handle structured response
+                    messageDiv.textContent = message.text;
+                    
+                    // Add suggestions if available
+                    if (message.suggestions && message.suggestions.length > 0) {
+                        const suggestionsDiv = document.createElement('div');
+                        suggestionsDiv.classList.add('suggestions');
+                        message.suggestions.forEach(suggestion => {
+                            const suggestionBtn = document.createElement('button');
+                            suggestionBtn.classList.add('suggestion-btn');
+                            suggestionBtn.textContent = suggestion;
+                            suggestionBtn.onclick = () => {
+                                userInput.value = suggestion;
+                                sendUserMessage();
+                            };
+                            suggestionsDiv.appendChild(suggestionBtn);
+                        });
+                        messageDiv.appendChild(suggestionsDiv);
+                    }
+                } else {
+                    messageDiv.textContent = message;
+                }
+                
+                chatbotMessages.appendChild(messageDiv);
+                chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+            };
+
+            // Get bot response
+            const getBotResponse = async (message) => {
+                // Show typing indicator
+                const typingDiv = document.createElement('div');
+                typingDiv.classList.add('message', 'bot-message');
+                typingDiv.textContent = 'Typing...';
+                chatbotMessages.appendChild(typingDiv);
+
+                try {
+                    // Make API call to Gemini
+                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            contents: [{
+                                parts: [{
+                                    text: `You are a waste management expert assistant. Context: You help users with waste segregation, 
+                                    collection schedules, recycling guidelines, hazardous waste handling, composting techniques, 
+                                    and environmental impact. 
+                                    User question: ${message}`
+                                }]
+                            }]
+                        })
+                    });
+
+                    // Remove typing indicator
+                    chatbotMessages.removeChild(typingDiv);
+
+                    if (!response.ok) {
+                        throw new Error('Failed to get response from Gemini');
+                    }
+
+                    const data = await response.json();
+                    const botResponse = data.candidates[0].content.parts[0].text;
+
+                    // Add bot response to chat
+                    appendMessage({
+                        text: botResponse,
+                        suggestions: [
+                            'How to segregate waste?',
+                            'When is the next collection?',
+                            'What can be recycled?'
+                        ]
+                    }, 'bot');
+
+                    // Store the interaction in MongoDB
+                    await storeChatInteraction(message, botResponse);
+
+                } catch (error) {
+                    console.error('Error getting bot response:', error);
+                    chatbotMessages.removeChild(typingDiv);
+                    appendMessage({
+                        text: 'Sorry, I encountered an error. Please try again.',
+                        suggestions: ['Try again', 'Contact support', 'View help guide']
+                    }, 'bot');
+                }
+            };
+
+            // Function to generate contextual suggestions
+            const generateSuggestions = async (userMessage, botResponse) => {
+                try {
+                    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${GEMINI_API_KEY}`
+                        },
+                        body: JSON.stringify({
+                            contents: [{
+                                parts: [{
+                                    text: `Based on this user question: "${userMessage}" and your response: "${botResponse}", 
+                                    generate 3 short, relevant follow-up questions that the user might want to ask next. 
+                                    Return them as a simple comma-separated list.`
+                                }]
+                            }],
+                            generationConfig: {
+                                temperature: 0.7,
+                                maxOutputTokens: 200,
+                            }
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Failed to generate suggestions');
+                    }
+
+                    const data = await response.json();
+                    const suggestionsText = data.candidates[0].content.parts[0].text;
+                    return suggestionsText.split(',').map(s => s.trim()).slice(0, 3);
+
+                } catch (error) {
+                    console.error('Error generating suggestions:', error);
+                    return getDefaultSuggestions();
+                }
+            };
+
+            // Default suggestions when API fails
+            const getDefaultSuggestions = () => {
+                return [
+                    'How to segregate waste?',
+                    'When is the next collection?',
+                    'What can be recycled?'
+                ];
+            };
+        });
+
+        // Feedback form submission
+        document.getElementById('feedbackForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const feedbackResponse = document.getElementById('feedbackResponse');
+            
+            try {
+                const formData = new FormData(e.target);
+                const data = {
+                    category: formData.get('feedbackCategory'),
+                    rating: parseInt(formData.get('rating')),
+                    feedbackText: formData.get('feedbackText')
+                };
+
+                feedbackResponse.innerHTML = '<div class="loading-spinner"></div>';
+
+                const response = await fetch('/api/submit-feedback', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    feedbackResponse.className = 'success-message';
+                    feedbackResponse.innerText = 'Thank you for your feedback!';
+                    e.target.reset();
+                    updateFeedbackAnalytics();
+                } else {
+                    throw new Error('Failed to submit feedback');
+                }
+            } catch (error) {
+                feedbackResponse.className = 'error-message';
+                feedbackResponse.innerText = 'Failed to submit feedback. Please try again.';
+            }
+        };
+
+        // Fetch and update feedback analytics
+        async function updateFeedbackAnalytics() {
+            try {
+                const response = await fetch('/api/feedback-analytics');
+                const data = await response.json();
+                
+                document.getElementById('averageRating').textContent = 
+                    data.averageRating.toFixed(1);
+                document.getElementById('totalFeedback').textContent = 
+                    data.totalFeedback;
+                document.getElementById('recentSentiment').textContent = 
+                    data.recentSentiment;
+            } catch (error) {
+                console.error('Error fetching feedback analytics:', error);
+            }
+        }
+
+        // Store chat interactions in MongoDB
+        async function storeChatInteraction(userMessage, botResponse) {
+            try {
+                await fetch('/api/store-chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        userMessage,
+                        botResponse
+                    })
+                });
+            } catch (error) {
+                console.error('Error storing chat interaction:', error);
+            }
+        }
     </script>
+
+    <!-- Add this right before the closing body tag -->
+    <button class="chatbot-toggle" id="chatbotToggle">
+        <i class="fas fa-comments"></i>
+    </button>
+
+    <div class="chatbot-container" id="chatbotContainer">
+        <div class="chatbot-header">
+            <h3><i class="fas fa-robot"></i> Waste Management Assistant</h3>
+            <button class="close-chat" id="closeChat">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="chatbot-messages" id="chatbotMessages">
+            <div class="message bot-message">
+                Hello! I'm your waste management assistant powered by Google AI. How can I help you today?
+            </div>
+        </div>
+        <div class="chatbot-input">
+            <input type="text" id="userInput" placeholder="Type your question here...">
+            <button class="send-message" id="sendMessage">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
 </body>
 
 </html>
