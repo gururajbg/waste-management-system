@@ -624,40 +624,92 @@ app.get('/api/drivers', requireLogin, async (req, res) => {
 });
 
 // Endpoint to fetch report data
-app.get('/api/report-data', requireLogin, async (req, res) => {
+app.get('/api/report-data', async (req, res) => {
+    const { type, timeRange, area } = req.query;
+    
     try {
-        const result = await pool.query(`
-            SELECT 
-                wc.area_id,
-                wc.c_date,
-                wc.c_time,
-                wc.vehicle_id,
-                d.driver_name,
-                d.driver_phone
-            FROM 
-                WASTE_COLLECTION wc
-            JOIN 
-                VEHICLE d ON wc.vehicle_id = d.vehicle_id
-            ORDER BY 
-                wc.c_date DESC, wc.c_time DESC
-        `);
+        let data = {
+            labels: [],
+            details: []
+        };
 
-        // Format the result to include area names if needed
-        const reportData = result.rows.map(record => ({
-            area_name: record.area_id, // Assuming you have a way to get area names
-            c_date: record.c_date,
-            c_time: record.c_time,
-            vehicle_id: record.vehicle_id,
-            driver_name: record.driver_name,
-            driver_phone: record.driver_phone
-        }));
+        switch(type) {
+            case 'waste':
+                data = await getWasteReport(timeRange, area);
+                break;
+            case 'collection':
+                data = await getCollectionReport(timeRange, area);
+                break;
+            case 'feedback':
+                data = await getFeedbackReport(timeRange);
+                break;
+            case 'complaints':
+                data = await getComplaintReport(timeRange, area);
+                break;
+        }
 
-        res.json(reportData);
+        res.json(data);
     } catch (error) {
-        console.error('Error fetching report data:', error);
-        res.status(500).json({ error: 'Failed to fetch report data' });
+        console.error('Error generating report:', error);
+        res.status(500).json({ error: 'Failed to generate report' });
     }
 });
+
+async function getWasteReport(timeRange, area) {
+    let dateFilter = getDateFilter(timeRange);
+    let areaFilter = area === 'all' ? '' : 'AND wp.area_id = $2';
+    
+    const query = `
+        SELECT 
+            w_date as date,
+            SUM(bio_weight) as bio_waste,
+            SUM(non_bio_weight) as non_bio_waste,
+            wp.area_id,
+            a.name as area_name
+        FROM waste_produced wp
+        JOIN area a ON wp.area_id = a.area_id
+        WHERE w_date >= $1 ${areaFilter}
+        GROUP BY w_date, wp.area_id, a.name
+        ORDER BY w_date
+    `;
+
+    const params = area === 'all' ? [dateFilter] : [dateFilter, area];
+    const result = await pool.query(query, params);
+
+    return processWasteData(result.rows);
+}
+
+function getDateFilter(timeRange) {
+    const now = new Date();
+    switch(timeRange) {
+        case 'day':
+            return new Date(now.setHours(0,0,0,0));
+        case 'week':
+            return new Date(now.setDate(now.getDate() - 7));
+        case 'month':
+            return new Date(now.setMonth(now.getMonth() - 1));
+        case 'year':
+            return new Date(now.setFullYear(now.getFullYear() - 1));
+        default:
+            return new Date(now.setDate(now.getDate() - 30));
+    }
+}
+
+function processWasteData(rows) {
+    const labels = rows.map(row => row.date);
+    const bioWaste = rows.map(row => row.bio_waste);
+    const nonBioWaste = rows.map(row => row.non_bio_waste);
+    
+    return {
+        labels,
+        bioWaste,
+        nonBioWaste,
+        totalWaste: rows.reduce((acc, row) => acc + row.bio_waste + row.non_bio_waste, 0),
+        averageDaily: (rows.reduce((acc, row) => acc + row.bio_waste + row.non_bio_waste, 0) / rows.length).toFixed(2),
+        peakGenerationTime: findPeakTime(rows),
+        details: rows
+    };
+}
 
 // Start the server
 app.listen(port, () => {
@@ -880,5 +932,97 @@ app.get('/api/feedback-analytics', async (req, res) => {
     } catch (error) {
         console.error('Error fetching analytics:', error);
         res.status(500).json({ error: 'Failed to fetch analytics' });
+    }
+});
+
+// Add this new route to fetch admin feedback data
+app.get('/api/admin/feedback', async (req, res) => {
+    try {
+        // Get all feedback
+        const feedback = await UserFeedback.find().sort({ timestamp: -1 });
+        
+        // Calculate analytics
+        const totalFeedback = feedback.length;
+        const averageRating = feedback.reduce((acc, curr) => acc + curr.rating, 0) / totalFeedback;
+        
+        // Calculate sentiment distribution
+        const sentiments = feedback.reduce((acc, curr) => {
+            acc[curr.sentiment.toLowerCase()]++;
+            return acc;
+        }, { positive: 0, neutral: 0, negative: 0 });
+        
+        const total = Object.values(sentiments).reduce((a, b) => a + b, 0);
+        const sentimentDistribution = {
+            positive: Math.round((sentiments.positive / total) * 100),
+            neutral: Math.round((sentiments.neutral / total) * 100),
+            negative: Math.round((sentiments.negative / total) * 100)
+        };
+
+        res.json({
+            totalFeedback,
+            averageRating,
+            sentimentDistribution,
+            feedback
+        });
+    } catch (error) {
+        console.error('Error fetching admin feedback data:', error);
+        res.status(500).json({ error: 'Failed to fetch feedback data' });
+    }
+});
+
+// Update the search reports route
+app.post('/api/search-reports', async (req, res) => {
+    const { searchTerm, reportType } = req.body;
+    
+    try {
+        let query = `
+            SELECT 
+                wp.w_date as date,
+                a.name as area_name,
+                wp.bio_weight,
+                wp.non_bio_weight,
+                CASE 
+                    WHEN wp.bio_weight + wp.non_bio_weight > 0 THEN 'Completed'
+                    ELSE 'Pending'
+                END as status
+            FROM waste_produced wp
+            JOIN area a ON wp.area_id = a.area_id
+            WHERE (LOWER(a.name) LIKE $1 
+                OR CAST(wp.w_date AS TEXT) LIKE $1)
+        `;
+
+        // Modified filtering based on report type
+        if (reportType === 'waste') {
+            query += ` AND (wp.bio_weight > 0 OR wp.non_bio_weight > 0)`;
+        } else if (reportType === 'collection') {
+            query += ` AND status = 'Completed'`;
+        }
+
+        query += ` ORDER BY wp.w_date DESC`;
+
+        const result = await pool.query(query, [`%${searchTerm}%`]);
+
+        // Calculate summary statistics
+        const totalWaste = result.rows.reduce((acc, row) => 
+            acc + (Number(row.bio_weight) || 0) + (Number(row.non_bio_weight) || 0), 0);
+        
+        const activeAreas = new Set(result.rows.map(row => row.area_name)).size;
+        
+        const completedCollections = result.rows.filter(r => r.status === 'Completed').length;
+        const efficiency = result.rows.length > 0 
+            ? ((completedCollections / result.rows.length) * 100).toFixed(1)
+            : 0;
+
+        res.json({
+            reports: result.rows,
+            totalWaste,
+            activeAreas,
+            efficiency,
+            completedCollections,
+            totalCollections: result.rows.length
+        });
+    } catch (error) {
+        console.error('Error searching reports:', error);
+        res.status(500).json({ error: 'Failed to search reports' });
     }
 });
