@@ -1,10 +1,15 @@
 const mongoose = require('mongoose');
 
-// MongoDB connection
-mongoose.connect('mongodb://localhost:27017/waste_management', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-});
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/waste_management';
+
+// Updated MongoDB connection with modern options
+mongoose.connect(MONGODB_URI)
+  .then(() => {
+    console.log('Connected to MongoDB');
+  })
+  .catch(err => {
+    console.error('MongoDB connection error:', err);
+  });
 
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
